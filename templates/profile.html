@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile & Settings - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--gray-900);">Account Settings</h1>
+    <p style="color: var(--gray-600); font-size: 0.95rem;">Manage your profile information and update account security</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    <!-- Profile Info Form Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">👤 Personal Details</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('profile') }}">
+            <input type="hidden" name="action" value="update_profile">
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" value="{{ user.username }}" disabled style="background-color: var(--gray-100); cursor: not-allowed;">
+                <div class="form-text">Username cannot be changed.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name *</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user.full_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address *</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="currency" class="form-label">Preferred Currency Symbol</label>
+                <select id="currency" name="currency" class="form-select">
+                    <option value="$" {% if user.currency == '$' %}selected{% endif %}>$ (USD)</option>
+                    <option value="₹" {% if user.currency == '₹' %}selected{% endif %}>₹ (INR)</option>
+                    <option value="€" {% if user.currency == '€' %}selected{% endif %}>€ (EUR)</option>
+                    <option value="£" {% if user.currency == '£' %}selected{% endif %}>£ (GBP)</option>
+                    <option value="¥" {% if user.currency == '¥' %}selected{% endif %}>¥ (JPY/CNY)</option>
+                    <option value="AED" {% if user.currency == 'AED' %}selected{% endif %}>AED (Dirham)</option>
+                    <option value="C$" {% if user.currency == 'C$' %}selected{% endif %}>C$ (CAD)</option>
+                    <option value="A$" {% if user.currency == 'A$' %}selected{% endif %}>A$ (AUD)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Save Profile Changes</button>
+        </form>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🔒 Change Password</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('profile') }}">
+            <input type="hidden" name="action" value="change_password">
+
+            <div class="form-group">
+                <label for="current_password" class="form-label">Current Password *</label>
+                <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter current password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new_password" class="form-label">New Password *</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Minimum 6 characters" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_new_password" class="form-label">Confirm New Password *</label>
+                <input type="password" id="confirm_new_password" name="confirm_new_password" class="form-control" placeholder="Re-enter new password" required>
+            </div>
+
+            <button type="submit" class="btn btn-outline btn-block" style="margin-top: 1rem;">Update Password</button>
+        </form>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-100); font-size: 0.85rem; color: var(--gray-500);">
+            Member since: <strong>{{ user.created_at }}</strong>
+        </div>
+    </div>
+</div>
+{% endblock %}

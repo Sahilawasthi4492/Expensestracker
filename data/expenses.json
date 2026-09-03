@@ -1,0 +1,229 @@
+{
+    "expenses": [
+        {
+            "id": "1",
+            "user_id": "1",
+            "title": "Test Grocery",
+            "amount": 125.5,
+            "category": "Food & Dining",
+            "date": "2026-09-01",
+            "payment_method": "Credit Card",
+            "notes": "Supermarket fruits & vegetables",
+            "tags": [
+                "groceries",
+                "organic"
+            ],
+            "created_at": "2026-09-03 15:05:24"
+        },
+        {
+            "id": "2",
+            "user_id": "1",
+            "title": "Metro Pass",
+            "amount": 45.0,
+            "category": "Transportation",
+            "date": "2026-09-02",
+            "payment_method": "Cash",
+            "notes": "Monthly commute pass",
+            "tags": [
+                "transit"
+            ],
+            "created_at": "2026-09-03 15:05:24"
+        },
+        {
+            "id": "3",
+            "user_id": "1",
+            "title": "Test Grocery",
+            "amount": 125.5,
+            "category": "Food & Dining",
+            "date": "2026-09-01",
+            "payment_method": "Credit Card",
+            "notes": "Supermarket fruits & vegetables",
+            "tags": [
+                "groceries",
+                "organic"
+            ],
+            "created_at": "2026-09-03 15:06:52"
+        },
+        {
+            "id": "4",
+            "user_id": "1",
+            "title": "Metro Pass",
+            "amount": 45.0,
+            "category": "Transportation",
+            "date": "2026-09-02",
+            "payment_method": "Cash",
+            "notes": "Monthly commute pass",
+            "tags": [
+                "transit"
+            ],
+            "created_at": "2026-09-03 15:06:52"
+        },
+        {
+            "id": "5",
+            "user_id": "2",
+            "title": "Whole Foods Grocery Run",
+            "amount": 142.8,
+            "category": "Food & Dining",
+            "date": "2026-09-03",
+            "payment_method": "Credit Card",
+            "notes": "Fresh veggies, almond milk & snacks",
+            "tags": [
+                "groceries",
+                "food"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "6",
+            "user_id": "2",
+            "title": "Metro Monthly Pass",
+            "amount": 65.0,
+            "category": "Transportation",
+            "date": "2026-09-02",
+            "payment_method": "Debit Card",
+            "notes": "Public transit reload",
+            "tags": [
+                "commute"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "7",
+            "user_id": "2",
+            "title": "High-Speed Fiber Internet",
+            "amount": 79.99,
+            "category": "Utilities & Bills",
+            "date": "2026-09-01",
+            "payment_method": "UPI / Online",
+            "notes": "Monthly fiber connection",
+            "tags": [
+                "utilities",
+                "bills"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "8",
+            "user_id": "2",
+            "title": "Starbucks Coffee & Bagel",
+            "amount": 12.45,
+            "category": "Food & Dining",
+            "date": "2026-08-31",
+            "payment_method": "Cash",
+            "notes": "Morning team breakfast",
+            "tags": [
+                "coffee"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "9",
+            "user_id": "2",
+            "title": "Movie Night Tickets",
+            "amount": 34.5,
+            "category": "Entertainment",
+            "date": "2026-08-30",
+            "payment_method": "Credit Card",
+            "notes": "IMAX cinema with friends",
+            "tags": [
+                "movies",
+                "weekend"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "10",
+            "user_id": "2",
+            "title": "Pharmacy & Vitamins",
+            "amount": 28.75,
+            "category": "Healthcare & Fitness",
+            "date": "2026-08-29",
+            "payment_method": "Debit Card",
+            "notes": "Omega 3 & multivitamin supply",
+            "tags": [
+                "health"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "11",
+            "user_id": "2",
+            "title": "Casual Sneakers Sale",
+            "amount": 89.9,
+            "category": "Shopping",
+            "date": "2026-08-27",
+            "payment_method": "Credit Card",
+            "notes": "Summer running shoes",
+            "tags": [
+                "apparel"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "12",
+            "user_id": "2",
+            "title": "Uber Ride to Airport",
+            "amount": 42.1,
+            "category": "Transportation",
+            "date": "2026-08-24",
+            "payment_method": "Digital Wallet",
+            "notes": "Airport drop off",
+            "tags": [
+                "travel"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "13",
+            "user_id": "2",
+            "title": "Electricity Bill",
+            "amount": 115.3,
+            "category": "Utilities & Bills",
+            "date": "2026-08-19",
+            "payment_method": "Bank Transfer",
+            "notes": "Power utility payment",
+            "tags": [
+                "utilities"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "14",
+            "user_id": "2",
+            "title": "Dinner with Colleagues",
+            "amount": 95.0,
+            "category": "Food & Dining",
+            "date": "2026-08-16",
+            "payment_method": "Credit Card",
+            "notes": "Italian bistro dinner",
+            "tags": [
+                "dining"
+            ],
+            "created_at": "2026-09-03 15:11:03"
+        },
+        {
+            "id": "15",
+            "user_id": "3",
+            "title": "bat",
+            "amount": 10.0,
+            "category": "Personal Care",
+            "date": "2026-09-03",
+            "payment_method": "Cash",
+            "notes": "",
+            "tags": [
+                "personal"
+            ],
+            "created_at": "2026-09-03 15:30:33"
+        }
+    ],
+    "budgets": {
+        "1": {
+            "2026-09": 500.0,
+            "default": 500.0
+        },
+        "2": {
+            "2026-09": 2500.0,
+            "default": 2500.0
+        }
+    }
+}

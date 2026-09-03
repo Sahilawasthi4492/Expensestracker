@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Expenses - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--gray-900);">Expenses History</h1>
+        <p style="color: var(--gray-600); font-size: 0.95rem;">Manage, search, and filter all your recorded transactions</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="{{ url_for('add_expense_route') }}" class="btn btn-primary">➕ Add Expense</a>
+        <a href="{{ url_for('export_csv', category=selected_category, payment_method=selected_payment, start_date=start_date, end_date=end_date, search=search) }}" class="btn btn-outline">📥 Export CSV</a>
+        <a href="{{ url_for('export_json') }}" class="btn btn-outline">📦 Export JSON</a>
+    </div>
+</div>
+
+<!-- Filter & Search Toolbar Card -->
+<div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+    <form method="GET" action="{{ url_for('expense_list') }}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: flex-end;">
+            <!-- Keyword Search -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">Search Keyword</label>
+                <input type="text" name="search" class="form-control" placeholder="Search title, notes, tags..." value="{{ search }}">
+            </div>
+
+            <!-- Category Filter -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">Category</label>
+                <select name="category" class="form-select">
+                    <option value="All">All Categories</option>
+                    {% for cat in CATEGORIES %}
+                        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Payment Method Filter -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">Payment Method</label>
+                <select name="payment_method" class="form-select">
+                    <option value="All">All Payment Methods</option>
+                    {% for pm in PAYMENT_METHODS %}
+                        <option value="{{ pm }}" {% if selected_payment == pm %}selected{% endif %}>{{ pm }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Start Date -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">From Date</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+
+            <!-- End Date -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">To Date</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+
+            <!-- Sort By -->
+            <div>
+                <label class="form-label" style="font-size: 0.825rem;">Sort Order</label>
+                <select name="sort_by" class="form-select">
+                    <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Date (Newest First)</option>
+                    <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Date (Oldest First)</option>
+                    <option value="amount_desc" {% if sort_by == 'amount_desc' %}selected{% endif %}>Amount (Highest First)</option>
+                    <option value="amount_asc" {% if sort_by == 'amount_asc' %}selected{% endif %}>Amount (Lowest First)</option>
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 0.65rem;">🔍 Filter</button>
+                <a href="{{ url_for('expense_list') }}" class="btn btn-outline" style="padding: 0.65rem;" title="Reset Filters">↺</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Filter Summary Strip -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; color: var(--gray-600); flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+        Showing <strong>{{ expenses|length }}</strong> record{% if expenses|length != 1 %}s{% endif %}
+        {% if search or selected_category != 'All' or selected_payment != 'All' or start_date or end_date %}
+            (Filtered)
+        {% endif %}
+    </div>
+    <div>
+        Total Filtered Spend: <strong style="color: var(--gray-900); font-size: 1.1rem;">{{ current_user.currency }}{{ "%.2f"|format(filtered_total) }}</strong>
+    </div>
+</div>
+
+<!-- Expenses Table -->
+<div class="card">
+    {% if expenses %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Title & Notes</th>
+                    <th>Category</th>
+                    <th>Payment Method</th>
+                    <th>Tags</th>
+                    <th>Amount</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exp in expenses %}
+                <tr>
+                    <td style="color: var(--gray-600); font-size: 0.875rem; white-space: nowrap;">{{ exp.date }}</td>
+                    <td>
+                        <div style="font-weight: 600; color: var(--gray-900);">{{ exp.title }}</div>
+                        {% if exp.notes %}
+                            <div style="font-size: 0.8rem; color: var(--gray-500); margin-top: 0.15rem;">{{ exp.notes }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ 'food' if 'Food' in exp.category else 'shopping' if 'Shopping' in exp.category else 'transport' if 'Transport' in exp.category else 'bills' if 'Bills' in exp.category or 'Housing' in exp.category else 'entertainment' if 'Entertainment' in exp.category else 'health' if 'Health' in exp.category else 'other' }}">
+                            {{ exp.category }}
+                        </span>
+                    </td>
+                    <td style="color: var(--gray-600); font-size: 0.875rem;">{{ exp.payment_method }}</td>
+                    <td>
+                        {% if exp.tags %}
+                            <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                                {% for tag in exp.tags %}
+                                    <span style="background: var(--gray-100); color: var(--gray-700); font-size: 0.725rem; padding: 0.15rem 0.45rem; border-radius: var(--radius-sm);">#{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="color: var(--gray-400); font-size: 0.8rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="amount">{{ current_user.currency }}{{ "%.2f"|format(exp.amount) }}</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a href="{{ url_for('edit_expense_route', expense_id=exp.id) }}" class="btn btn-outline btn-sm" title="Edit Expense">✏️ Edit</a>
+                        <form method="POST" action="{{ url_for('delete_expense_route', expense_id=exp.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" data-confirm-delete data-item-title="{{ exp.title }}" title="Delete Expense">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem 1rem; color: var(--gray-500);">
+        <p style="font-size: 1.15rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--gray-700);">No expenses match your criteria.</p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.25rem;">Try adjusting your filters or search term, or add a new expense.</p>
+        <a href="{{ url_for('add_expense_route') }}" class="btn btn-primary">➕ Add Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

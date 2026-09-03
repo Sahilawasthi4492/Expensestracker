@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error - 500{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+    <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--gray-900); margin-bottom: 0.75rem;">500 - Internal Server Error</h1>
+    <p style="color: var(--gray-600); max-width: 500px; margin: 0 auto 1.75rem auto;">
+        Something went wrong on our end. Please try refreshing or return to the dashboard.
+    </p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+</div>
+{% endblock %}

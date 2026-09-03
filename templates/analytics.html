@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics & Reports - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--gray-900);">Analytics & Insights</h1>
+        <p style="color: var(--gray-600); font-size: 0.95rem;">Visual breakdown of your spending habits and monthly trends</p>
+    </div>
+
+    <!-- Month Selector Form -->
+    <div>
+        <form method="GET" action="{{ url_for('analytics_route') }}" style="display: flex; align-items: center; gap: 0.5rem;">
+            <label for="month" class="form-label" style="margin-bottom: 0; white-space: nowrap; font-size: 0.875rem;">Select Month:</label>
+            <input type="month" id="month" name="month" class="form-control" value="{{ selected_month }}" onchange="this.form.submit();" style="padding: 0.45rem 0.75rem; font-size: 0.9rem;">
+        </form>
+    </div>
+</div>
+
+<!-- Key Analytics Metric Strip -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-icon blue">💰</div>
+        <div class="metric-info">
+            <div class="metric-label">Selected Month Spend</div>
+            <div class="metric-value">{{ current_user.currency }}{{ "%.2f"|format(summary.total_this_month) }}</div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-icon green">🧾</div>
+        <div class="metric-info">
+            <div class="metric-label">Monthly Transactions</div>
+            <div class="metric-value">{{ summary.month_transaction_count }}</div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-icon purple">🌐</div>
+        <div class="metric-info">
+            <div class="metric-label">All-Time Total Spend</div>
+            <div class="metric-value">{{ current_user.currency }}{{ "%.2f"|format(summary.total_all_time) }}</div>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-icon amber">🏷️</div>
+        <div class="metric-info">
+            <div class="metric-label">Categories Active</div>
+            <div class="metric-value">{{ summary.category_breakdown|length }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- 6-Month Trend Line/Bar Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📈 6-Month Spending Trend</h2>
+        </div>
+        <div style="position: relative; height: 300px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Category Breakdown Doughnut Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🍰 Category Distribution</h2>
+        </div>
+        <div style="position: relative; height: 300px; display: flex; align-items: center; justify-content: center;">
+            {% if summary.category_breakdown %}
+                <canvas id="categoryChart"></canvas>
+            {% else %}
+                <p style="color: var(--gray-500); text-align: center;">No category data for {{ summary.current_month_name }}.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Payment Methods Breakdown Chart & Table -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <!-- Payment Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">💳 Payment Method Share</h2>
+        </div>
+        <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+            {% if summary.payment_breakdown %}
+                <canvas id="paymentChart"></canvas>
+            {% else %}
+                <p style="color: var(--gray-500); text-align: center;">No payment data recorded for {{ summary.current_month_name }}.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Category Summary Breakdown Table -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Category Breakdown ({{ summary.current_month_name }})</h2>
+        </div>
+        {% if summary.category_breakdown %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th style="text-align: right;">% Share</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat, amt in summary.category_breakdown.items() %}
+                    <tr>
+                        <td><strong>{{ cat }}</strong></td>
+                        <td class="amount">{{ current_user.currency }}{{ "%.2f"|format(amt) }}</td>
+                        <td style="text-align: right; color: var(--gray-600); font-weight: 600;">
+                            {% if summary.total_this_month > 0 %}
+                                {{ "%.1f"|format((amt / summary.total_this_month) * 100) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--gray-500); text-align: center; padding: 2rem;">No data recorded for this month.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Monthly Trends Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ trend_labels_json|safe }},
+                datasets: [{
+                    label: 'Total Spending ({{ current_user.currency }})',
+                    data: {{ trend_values_json|safe }},
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#4f46e5',
+                    pointRadius: 5,
+                    borderWidth: 2.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 2. Category Doughnut Chart
+    const catCtx = document.getElementById('categoryChart');
+    if (catCtx) {
+        const labels = {{ category_labels_json|safe }};
+        const values = {{ category_values_json|safe }};
+        if (labels.length > 0) {
+            new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#4f46e5', '#0ea5e9', '#10b981', '#f59e0b',
+                            '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6',
+                            '#f97316', '#64748b'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+                    cutout: '60%'
+                }
+            });
+        }
+    }
+
+    // 3. Payment Method Chart
+    const payCtx = document.getElementById('paymentChart');
+    if (payCtx) {
+        const pLabels = {{ payment_labels_json|safe }};
+        const pValues = {{ payment_values_json|safe }};
+        if (pLabels.length > 0) {
+            new Chart(payCtx, {
+                type: 'pie',
+                data: {
+                    labels: pLabels,
+                    datasets: [{
+                        data: pValues,
+                        backgroundColor: ['#10b981', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ef4444', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

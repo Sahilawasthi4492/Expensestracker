@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="container container-sm">
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header" style="justify-content: center; text-align: center; border-bottom: none; margin-bottom: 0.5rem;">
+            <div>
+                <h2 class="card-title" style="font-size: 1.5rem;">Welcome Back</h2>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.25rem;">Sign in to access your personal dashboard</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('login', next=request.args.get('next')) }}">
+            <div class="form-group">
+                <label for="identifier" class="form-label">Email or Username</label>
+                <input type="text" id="identifier" name="identifier" class="form-control" placeholder="Enter your email or username" value="{{ identifier or '' }}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+                    <a href="{{ url_for('forgot_password') }}" style="font-size: 0.825rem;">Forgot Password?</a>
+                </div>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="remember" name="remember" style="cursor: pointer;">
+                <label for="remember" style="font-size: 0.875rem; color: var(--gray-600); cursor: pointer; margin-bottom: 0;">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.5rem;">Sign In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--gray-100); font-size: 0.9rem; color: var(--gray-600);">
+            Don't have an account? <a href="{{ url_for('signup') }}" style="font-weight: 600;">Sign up now</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

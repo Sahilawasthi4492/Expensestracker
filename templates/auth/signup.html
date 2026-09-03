@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="container container-sm">
+    <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header" style="justify-content: center; text-align: center; border-bottom: none; margin-bottom: 0.5rem;">
+            <div>
+                <h2 class="card-title" style="font-size: 1.5rem;">Create Your Account</h2>
+                <p style="color: var(--gray-500); font-size: 0.9rem; margin-top: 0.25rem;">Start tracking your budget and expenses today</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('signup') }}">
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" placeholder="e.g. John Doe" value="{{ full_name or '' }}" required autofocus>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="e.g. johndoe" value="{{ username or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="currency" class="form-label">Preferred Currency</label>
+                    <select id="currency" name="currency" class="form-select">
+                        <option value="$" {% if currency == '$' %}selected{% endif %}>$ (USD)</option>
+                        <option value="₹" {% if currency == '₹' %}selected{% endif %}>₹ (INR)</option>
+                        <option value="€" {% if currency == '€' %}selected{% endif %}>€ (EUR)</option>
+                        <option value="£" {% if currency == '£' %}selected{% endif %}>£ (GBP)</option>
+                        <option value="¥" {% if currency == '¥' %}selected{% endif %}>¥ (JPY/CNY)</option>
+                        <option value="AED" {% if currency == 'AED' %}selected{% endif %}>AED (Dirham)</option>
+                        <option value="C$" {% if currency == 'C$' %}selected{% endif %}>C$ (CAD)</option>
+                        <option value="A$" {% if currency == 'A$' %}selected{% endif %}>A$ (AUD)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="e.g. john@example.com" value="{{ email or '' }}" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Min. 6 characters" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.75rem;">Create Account</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--gray-100); font-size: 0.9rem; color: var(--gray-600);">
+            Already have an account? <a href="{{ url_for('login') }}" style="font-weight: 600;">Sign in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

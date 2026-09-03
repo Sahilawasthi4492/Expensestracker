@@ -1,0 +1,35 @@
+[
+    {
+        "id": "1",
+        "full_name": "Test User",
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "password_hash": "scrypt:32768:8:1$AVvS78Irk2b5r5s4$629429fdd99d5c0c11623b70d6c4d44d02a5204fded57562f905ea4224c659b30b3814f09c3a8d2703dfea5983b7b31798f39fc28eac4f7faebc996ea1501e99",
+        "currency": "$",
+        "created_at": "2026-09-03 15:05:23",
+        "reset_token": "iYRtE-yJYhr4h4ZBJgbm6sdr3gDrLilla19H9TO3d1o",
+        "reset_token_expires": "2026-09-03 16:06:52"
+    },
+    {
+        "id": "2",
+        "full_name": "Alex Morgan",
+        "username": "demo",
+        "email": "demo@example.com",
+        "password_hash": "scrypt:32768:8:1$b1XHMz6ft6lS0ATR$6106f5f890b7dd913ca1486240d1db0c7f2d34ea50e0e2d8cf92a3d225b8bb811eed91ced072300f9abcb89c4e19181e91545f873e4b9db996c034f03bbc6205",
+        "currency": "$",
+        "created_at": "2026-09-03 15:09:06",
+        "reset_token": null,
+        "reset_token_expires": null
+    },
+    {
+        "id": "3",
+        "full_name": "yash",
+        "username": "yash",
+        "email": "yash@gmail.com",
+        "password_hash": "scrypt:32768:8:1$ZM7bW44P8uppJJLM$e3a8f348894df17dc9cd118ef284e1dc019552e1cb4c8a3c9457aff1007db9d674f92fb04bc66eedc4f7637ef8a8e609fe8c46a8aaf2a7a745683e6e466780c6",
+        "currency": "₹",
+        "created_at": "2026-09-03 15:27:20",
+        "reset_token": null,
+        "reset_token_expires": null
+    }
+]

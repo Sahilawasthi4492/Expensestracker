@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Monthly Budget - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--gray-900);">Monthly Budget Management</h1>
+    <p style="color: var(--gray-600); font-size: 0.95rem;">Set and track spending limits to stay on top of your financial goals</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+    <!-- Budget Form Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🎯 Set Monthly Limit</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('budget_route') }}">
+            <div class="form-group">
+                <label for="month" class="form-label">Month</label>
+                <input type="month" id="month" name="month" class="form-control" value="{{ selected_month }}" required onchange="window.location.href='{{ url_for('budget_route') }}?month=' + this.value;">
+            </div>
+
+            <div class="form-group">
+                <label for="budget_amount" class="form-label">Budget Limit ({{ current_user.currency }}) *</label>
+                <input type="number" step="0.01" min="0" id="budget_amount" name="budget_amount" class="form-control" placeholder="e.g. 1500.00" value="{{ "%.2f"|format(summary.budget) if summary.budget > 0 else '' }}" required>
+                <div class="form-text">Set your maximum planned expenditure for this month.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Save Budget</button>
+        </form>
+    </div>
+
+    <!-- Budget Status Card -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📊 Status for {{ summary.current_month_name }}</h2>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="color: var(--gray-600); font-size: 0.9rem;">Budget Limit:</span>
+                <strong style="color: var(--gray-900);">{{ current_user.currency }}{{ "%.2f"|format(summary.budget) }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="color: var(--gray-600); font-size: 0.9rem;">Actual Spent:</span>
+                <strong style="color: var(--primary);">{{ current_user.currency }}{{ "%.2f"|format(summary.total_this_month) }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: var(--gray-600); font-size: 0.9rem;">Remaining Balance:</span>
+                <strong style="{% if summary.budget > 0 and summary.remaining_budget < 0 %}color: var(--danger);{% else %}color: var(--success);{% endif %}">
+                    {{ current_user.currency }}{{ "%.2f"|format(summary.remaining_budget) }}
+                </strong>
+            </div>
+
+            <div class="progress-container" style="height: 12px; margin-top: 0.75rem;">
+                <div class="progress-bar {% if summary.budget_usage_percent > 100 %}progress-danger{% elif summary.budget_usage_percent >= 80 %}progress-warning{% else %}progress-success{% endif %}" 
+                     style="width: {{ [summary.budget_usage_percent, 100]|min }}%;"></div>
+            </div>
+            <div style="text-align: right; font-size: 0.8rem; color: var(--gray-500); margin-top: 0.25rem;">
+                {{ summary.budget_usage_percent }}% utilized
+            </div>
+        </div>
+
+        {% if summary.budget > 0 and summary.budget_usage_percent > 100 %}
+            <div class="alert alert-danger" style="margin-bottom: 0;">
+                ⚠️ Over Budget: You have exceeded this month's budget by {{ current_user.currency }}{{ "%.2f"|format(summary.total_this_month - summary.budget) }}.
+            </div>
+        {% elif summary.budget > 0 and summary.budget_usage_percent >= 80 %}
+            <div class="alert alert-warning" style="margin-bottom: 0;">
+                ⚠️ Budget Alert: You have reached {{ summary.budget_usage_percent }}% of your limit. Consider trimming discretionary expenses.
+            </div>
+        {% elif summary.budget > 0 %}
+            <div class="alert alert-success" style="margin-bottom: 0;">
+                ✅ Great job! Your spending is well within your defined monthly budget.
+            </div>
+        {% else %}
+            <div class="alert alert-info" style="margin-bottom: 0;">
+                ℹ️ You haven't set a budget for this month yet. Enter an amount on the left to activate progress tracking.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

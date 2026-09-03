@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--gray-900);">
+            Welcome, {{ user.full_name or user.username }} 👋
+        </h1>
+        <p style="color: var(--gray-600); font-size: 0.95rem;">
+            Here is your financial summary for <strong>{{ summary.current_month_name }}</strong>.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{{ url_for('add_expense_route') }}" class="btn btn-primary">➕ Add Expense</a>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-outline">📥 Export CSV</a>
+    </div>
+</div>
+
+<!-- Metrics Cards Grid -->
+<div class="metrics-grid">
+    <!-- This Month Spend -->
+    <div class="metric-card">
+        <div class="metric-icon blue">💳</div>
+        <div class="metric-info">
+            <div class="metric-label">This Month Spent</div>
+            <div class="metric-value">{{ user.currency }}{{ "%.2f"|format(summary.total_this_month) }}</div>
+        </div>
+    </div>
+
+    <!-- Monthly Budget -->
+    <div class="metric-card">
+        <div class="metric-icon purple">🎯</div>
+        <div class="metric-info">
+            <div class="metric-label">Monthly Budget</div>
+            <div class="metric-value">
+                {% if summary.budget > 0 %}
+                    {{ user.currency }}{{ "%.2f"|format(summary.budget) }}
+                {% else %}
+                    <a href="{{ url_for('budget_route') }}" style="font-size: 1rem; color: var(--primary);">Set Budget &rarr;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Remaining Budget -->
+    <div class="metric-card">
+        <div class="metric-icon green">🏦</div>
+        <div class="metric-info">
+            <div class="metric-label">Remaining Budget</div>
+            <div class="metric-value" style="{% if summary.budget > 0 and summary.remaining_budget < 0 %}color: var(--danger);{% endif %}">
+                {% if summary.budget > 0 %}
+                    {{ user.currency }}{{ "%.2f"|format(summary.remaining_budget) }}
+                {% else %}
+                    <span style="font-size: 1.1rem; color: var(--gray-500);">No limit set</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Spending -->
+    <div class="metric-card">
+        <div class="metric-icon amber">📅</div>
+        <div class="metric-info">
+            <div class="metric-label">Spent Today</div>
+            <div class="metric-value">{{ user.currency }}{{ "%.2f"|format(summary.total_today) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Progress Indicator -->
+{% if summary.budget > 0 %}
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <span style="font-weight: 600; font-size: 0.95rem; color: var(--gray-700);">
+            Monthly Budget Progress: <strong>{{ summary.budget_usage_percent }}% Used</strong>
+        </span>
+        <span style="font-size: 0.85rem; color: var(--gray-500);">
+            {{ user.currency }}{{ "%.2f"|format(summary.total_this_month) }} of {{ user.currency }}{{ "%.2f"|format(summary.budget) }}
+        </span>
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-bar {% if summary.budget_usage_percent > 100 %}progress-danger{% elif summary.budget_usage_percent >= 80 %}progress-warning{% else %}progress-success{% endif %}" 
+             style="width: {{ [summary.budget_usage_percent, 100]|min }}%;"></div>
+    </div>
+
+    {% if summary.budget_usage_percent > 100 %}
+        <div style="margin-top: 0.5rem; color: var(--danger); font-size: 0.85rem; font-weight: 600;">
+            ⚠️ Warning: You have exceeded your monthly budget by {{ user.currency }}{{ "%.2f"|format(summary.total_this_month - summary.budget) }}!
+        </div>
+    {% elif summary.budget_usage_percent >= 80 %}
+        <div style="margin-top: 0.5rem; color: var(--warning); font-size: 0.85rem; font-weight: 600;">
+            ⚠️ Notice: You have used over 80% of your monthly budget limit.
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Charts Grid -->
+<div class="dashboard-charts-grid">
+    <!-- 6 Month Trend Bar Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Monthly Spending Trends</h3>
+            <a href="{{ url_for('analytics_route') }}" style="font-size: 0.85rem; font-weight: 600;">Full Analytics &rarr;</a>
+        </div>
+        <div style="position: relative; height: 260px; width: 100%;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Category Breakdown Doughnut Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">This Month by Category</h3>
+        </div>
+        <div style="position: relative; height: 260px; width: 100%; display: flex; align-items: center; justify-content: center;">
+            {% if summary.category_breakdown %}
+                <canvas id="categoryChart"></canvas>
+            {% else %}
+                <p style="color: var(--gray-500); font-size: 0.9rem; text-align: center;">No expenses recorded for this month yet.<br><a href="{{ url_for('add_expense_route') }}">Add an expense</a></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions List -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Recent Transactions</h3>
+        <a href="{{ url_for('expense_list') }}" class="btn btn-outline btn-sm">View All ({{ summary.transaction_count }})</a>
+    </div>
+
+    {% if recent_expenses %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Payment Method</th>
+                    <th>Amount</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exp in recent_expenses %}
+                <tr>
+                    <td style="color: var(--gray-600); font-size: 0.875rem;">{{ exp.date }}</td>
+                    <td>
+                        <strong>{{ exp.title }}</strong>
+                        {% if exp.notes %}
+                            <div style="font-size: 0.775rem; color: var(--gray-500);">{{ exp.notes }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ 'food' if 'Food' in exp.category else 'shopping' if 'Shopping' in exp.category else 'transport' if 'Transport' in exp.category else 'bills' if 'Bills' in exp.category or 'Housing' in exp.category else 'entertainment' if 'Entertainment' in exp.category else 'health' if 'Health' in exp.category else 'other' }}">
+                            {{ exp.category }}
+                        </span>
+                    </td>
+                    <td style="color: var(--gray-600); font-size: 0.875rem;">{{ exp.payment_method }}</td>
+                    <td class="amount">{{ user.currency }}{{ "%.2f"|format(exp.amount) }}</td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <a href="{{ url_for('edit_expense_route', expense_id=exp.id) }}" class="btn btn-outline btn-sm" title="Edit">✏️</a>
+                        <form method="POST" action="{{ url_for('delete_expense_route', expense_id=exp.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" data-confirm-delete data-item-title="{{ exp.title }}" title="Delete">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2.5rem 1rem; color: var(--gray-500);">
+        <p style="font-size: 1.1rem; margin-bottom: 0.75rem;">No expenses added yet!</p>
+        <a href="{{ url_for('add_expense_route') }}" class="btn btn-primary">Add Your First Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Monthly Trends Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        const labels = {{ trend_labels_json|safe }};
+        const values = {{ trend_values_json|safe }};
+
+        new Chart(trendCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Spending ({{ user.currency }})',
+                    data: values,
+                    backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                    hoverBackgroundColor: 'rgba(67, 56, 202, 1)',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Category Doughnut Chart
+    const catCtx = document.getElementById('categoryChart');
+    if (catCtx) {
+        const catLabels = {{ category_labels_json|safe }};
+        const catValues = {{ category_values_json|safe }};
+
+        if (catLabels.length > 0) {
+            new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catValues,
+                        backgroundColor: [
+                            '#4f46e5', '#0ea5e9', '#10b981', '#f59e0b',
+                            '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6',
+                            '#f97316', '#64748b'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

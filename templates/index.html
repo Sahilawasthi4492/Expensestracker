@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Personal Expense Tracker - Take Control of Your Finances{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1 class="hero-title">
+        Smart, Simple & Beautiful <br>
+        <span>Personal Expense Tracker</span>
+    </h1>
+    <p class="hero-subtitle">
+        Track your daily spending, set monthly budgets, analyze category breakdowns, and export reports seamlessly.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg">🚀 Get Started Free</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">🔑 Sign In</a>
+    </div>
+
+    <!-- Feature Highlights Grid -->
+    <div class="features-grid">
+        <div class="feature-box">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Fast & Lightweight</h3>
+            <p class="feature-desc">Powered by pure Flask and optimized JSON file storage. Instant page loads without heavyweight database overhead.</p>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Visual Analytics</h3>
+            <p class="feature-desc">Interactive category charts and monthly trend graphs so you always know where your money goes.</p>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">🎯</div>
+            <h3 class="feature-title">Monthly Budgets</h3>
+            <p class="feature-desc">Set personalized spending limits and get automated color-coded warnings before you overspend.</p>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">📁</div>
+            <h3 class="feature-title">Export in Seconds</h3>
+            <p class="feature-desc">Download complete spreadsheets in CSV or backup your raw data in clean JSON format at any time.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
